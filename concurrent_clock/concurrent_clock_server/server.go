@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"time"
 )
 
@@ -13,10 +14,17 @@ const defaultTimeFormat = "2006-01-02 15:04:05"
 const defaultHost = "localhost:8000"
 
 func main() {
-	Serve(defaultHost)
+	host := ""
+	if len(os.Args) < 2 {
+		host = defaultHost
+	} else {
+		host = os.Args[1]
+	}
+	Serve(host)
 }
 
 func Serve(host string) {
+	fmt.Println("Started server and listening on the port " + host)
 	listener, err := net.Listen("tcp", host)
 	if err != nil {
 		log.Fatal(err)
