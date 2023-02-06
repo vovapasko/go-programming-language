@@ -18,14 +18,15 @@ func Serve(host string) {
 	}
 	for {
 		connection, err := listener.Accept()
+		clientNum += 1
 		if err != nil {
 			log.Fatal(err)
 		}
-		handleConnection(connection)
+		go handleConnection(connection, clientNum)
 	}
 }
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, clientNum int) {
 	defer func(conn net.Conn) {
 		err := conn.Close()
 		if err != nil {
@@ -36,7 +37,7 @@ func handleConnection(conn net.Conn) {
 		currentTime := getCurrentTime(defaultTimeFormat)
 		_, err := fmt.Fprintf(conn, "[%s]: hello from client %v\n", currentTime, clientNum)
 		if err != nil {
-			clientNum += 1
+			clientNum = 1
 			return
 		}
 		time.Sleep(1 * time.Second)
