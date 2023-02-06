@@ -1,4 +1,4 @@
-package concurrent_clock_server
+package main
 
 import (
 	"fmt"
@@ -10,6 +10,11 @@ import (
 var clientNum = 0
 
 const defaultTimeFormat = "2006-01-02 15:04:05"
+const defaultHost = "localhost:8000"
+
+func main() {
+	Serve(defaultHost)
+}
 
 func Serve(host string) {
 	listener, err := net.Listen("tcp", host)
@@ -37,7 +42,6 @@ func handleConnection(conn net.Conn, clientNum int) {
 		currentTime := getCurrentTime(defaultTimeFormat)
 		_, err := fmt.Fprintf(conn, "[%s]: hello from client %v\n", currentTime, clientNum)
 		if err != nil {
-			clientNum = 1
 			return
 		}
 		time.Sleep(1 * time.Second)
