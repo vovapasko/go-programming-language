@@ -8,17 +8,16 @@ import (
 )
 
 func TestServe(t *testing.T) {
-	// test starting server and check the connection
 	host := "localhost:8000"
 	buff := &bytes.Buffer{}
-	go Serve(buff, host)
+	runInTimezone := EuropeLondonTz
+	go Serve(buff, host, runInTimezone)
 	time.Sleep(100 * time.Millisecond)
 	_, err := net.Dial("tcp", host)
 	if err != nil {
 		t.Fatal("Connection failed")
 	}
-
-	want := "Started server and listening on the port " + host
+	want := "Started server and listening on the port " + host + " and timezone " + runInTimezone
 	got := buff.String()
 	if err != nil {
 		t.Fatal("Failed to receive a message")
@@ -46,9 +45,9 @@ type TimezoneTest struct {
 
 func TestGetTimeForTimezone(t *testing.T) {
 	expectedTimes := []TimezoneTest{
-		{Timezone: EUROPE_LONDON_TZ, Time: "2020-09-13 18:30:00"},
-		{Timezone: ASIA_TOKYO_TZ, Time: "2020-09-14 02:30:00"},
-		{Timezone: US_EASTERN_TZ, Time: "2020-09-13 13:30:00"},
+		{Timezone: EuropeLondonTz, Time: "2020-09-13 18:30:00"},
+		{Timezone: AsiaTokyoTz, Time: "2020-09-14 02:30:00"},
+		{Timezone: UsEasternTz, Time: "2020-09-13 13:30:00"},
 	}
 
 	mockTime := time.Date(2020, time.September, 13, 17, 30, 0, 0, time.UTC)

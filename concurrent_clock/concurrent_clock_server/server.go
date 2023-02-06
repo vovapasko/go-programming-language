@@ -14,23 +14,29 @@ var clientNum = 0
 const defaultTimeFormat = "2006-01-02 15:04:05"
 const defaultHost = "localhost:8000"
 const (
-	US_EASTERN_TZ    = "US/Eastern"
-	ASIA_TOKYO_TZ    = "Asia/Tokyo"
-	EUROPE_LONDON_TZ = "Europe/London"
+	UsEasternTz    = "US/Eastern"
+	AsiaTokyoTz    = "Asia/Tokyo"
+	EuropeLondonTz = "Europe/London"
 )
 
 func main() {
-	host := ""
+	host, timezone := "", ""
+
 	if len(os.Args) < 2 {
 		host = defaultHost
 	} else {
 		host = os.Args[1]
 	}
-	Serve(os.Stdout, host)
+	if len(os.Args) < 3 {
+		timezone = EuropeLondonTz
+	} else {
+		timezone = os.Args[2]
+	}
+	Serve(os.Stdout, host, timezone)
 }
 
-func Serve(w io.Writer, host string) {
-	_, _ = fmt.Fprint(w, "Started server and listening on the port "+host)
+func Serve(w io.Writer, host, timezone string) {
+	_, _ = fmt.Fprintf(w, "Started server and listening on the port %v and timezone %v", host, timezone)
 	listener, err := net.Listen("tcp", host)
 	if err != nil {
 		log.Fatal(err)
@@ -41,11 +47,11 @@ func Serve(w io.Writer, host string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		go handleConnection(connection, clientNum)
+		go handleConnection(connection, clientNum, timezone)
 	}
 }
 
-func handleConnection(conn net.Conn, clientNum int) {
+func handleConnection(conn net.Conn, clientNum int, timezone string) {
 	defer func(conn net.Conn) {
 		err := conn.Close()
 		if err != nil {
@@ -53,7 +59,7 @@ func handleConnection(conn net.Conn, clientNum int) {
 		}
 	}(conn)
 	for {
-		currentTime := getCurrentTime(defaultTimeFormat, time.Now)
+		currentTime := getLocalTime(time.Now(), timezone)
 		_, err := fmt.Fprintf(conn, "[%s]: hello from client %v\n", currentTime, clientNum)
 		if err != nil {
 			return
