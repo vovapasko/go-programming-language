@@ -13,6 +13,11 @@ var clientNum = 0
 
 const defaultTimeFormat = "2006-01-02 15:04:05"
 const defaultHost = "localhost:8000"
+const (
+	US_EASTERN_TZ    = "US/Eastern"
+	ASIA_TOKYO_TZ    = "Asia/Tokyo"
+	EUROPE_LONDON_TZ = "Europe/London"
+)
 
 func main() {
 	host := ""
@@ -60,4 +65,9 @@ func handleConnection(conn net.Conn, clientNum int) {
 func getCurrentTime(format string, timeNow func() time.Time) string {
 	t := timeNow()
 	return t.Format(format)
+}
+
+func getLocalTime(timeUTC time.Time, timeZoneCode string) string {
+	loc, _ := time.LoadLocation(timeZoneCode)
+	return timeUTC.In(loc).Format(defaultTimeFormat)
 }

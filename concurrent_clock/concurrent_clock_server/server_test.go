@@ -39,3 +39,26 @@ func TestGetCurrentTime(t *testing.T) {
 		t.Errorf("Got %v, want %v", got, want)
 	}
 }
+
+type TimezoneTest struct {
+	Timezone, Time string
+}
+
+func TestGetTimeForTimezone(t *testing.T) {
+	expectedTimes := []TimezoneTest{
+		{Timezone: EUROPE_LONDON_TZ, Time: "2020-09-13 18:30:00"},
+		{Timezone: ASIA_TOKYO_TZ, Time: "2020-09-14 02:30:00"},
+		{Timezone: US_EASTERN_TZ, Time: "2020-09-13 13:30:00"},
+	}
+
+	mockTime := time.Date(2020, time.September, 13, 17, 30, 0, 0, time.UTC)
+
+	for _, timeTestCase := range expectedTimes {
+		gotLocalTime := getLocalTime(mockTime, timeTestCase.Timezone)
+		wantLocalTime := timeTestCase.Time
+		if wantLocalTime != gotLocalTime {
+			t.Errorf("Wanted %v time, got %v time", wantLocalTime, gotLocalTime)
+		}
+	}
+
+}
