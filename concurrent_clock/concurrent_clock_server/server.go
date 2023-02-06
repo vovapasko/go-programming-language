@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -20,11 +21,11 @@ func main() {
 	} else {
 		host = os.Args[1]
 	}
-	Serve(host)
+	Serve(os.Stdout, host)
 }
 
-func Serve(host string) {
-	fmt.Println("Started server and listening on the port " + host)
+func Serve(w io.Writer, host string) {
+	_, _ = fmt.Fprint(w, "Started server and listening on the port "+host)
 	listener, err := net.Listen("tcp", host)
 	if err != nil {
 		log.Fatal(err)
@@ -47,7 +48,7 @@ func handleConnection(conn net.Conn, clientNum int) {
 		}
 	}(conn)
 	for {
-		currentTime := getCurrentTime(defaultTimeFormat)
+		currentTime := getCurrentTime(defaultTimeFormat, time.Now)
 		_, err := fmt.Fprintf(conn, "[%s]: hello from client %v\n", currentTime, clientNum)
 		if err != nil {
 			return
@@ -56,7 +57,7 @@ func handleConnection(conn net.Conn, clientNum int) {
 	}
 }
 
-func getCurrentTime(format string) string {
-	t := time.Now()
+func getCurrentTime(format string, timeNow func() time.Time) string {
+	t := timeNow()
 	return t.Format(format)
 }
