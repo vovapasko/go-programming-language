@@ -1,7 +1,7 @@
 package main
 
-import "my_concurrency/fibonacci"
+import "my_concurrency/concurrent_clock_server"
 
 func main() {
-	fibonacci.InteractiveFibonacci(43)
+	concurrent_clock_server.Serve("localhost:8000")
 }
