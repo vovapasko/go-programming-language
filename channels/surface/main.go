@@ -7,6 +7,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"os"
 )
@@ -21,6 +22,27 @@ const (
 )
 
 var sin30, cos30 = math.Sin(angle), math.Cos(angle) // sin(30°), cos(30°)
+
+func SVG2(w io.Writer) {
+	zmin, zmax := minmax()
+	fmt.Fprintf(w, "<svg xmlns='http://www.w3.org/2000/svg' "+
+		"style='stroke: grey; fill: white; stroke-width: 0.7' "+
+		"width='%d' height='%d'>", width, height)
+	for i := 0; i < cells; i++ {
+		for j := 0; j < cells; j++ {
+			ax, ay := corner(i+1, j)
+			bx, by := corner(i, j)
+			cx, cy := corner(i, j+1)
+			dx, dy := corner(i+1, j+1)
+			if math.IsNaN(ax) || math.IsNaN(ay) || math.IsNaN(bx) || math.IsNaN(by) || math.IsNaN(cx) || math.IsNaN(cy) || math.IsNaN(dx) || math.IsNaN(dy) {
+				continue
+			}
+			fmt.Fprintf(w, "<polygon style='stroke: %s; fill: #222222' points='%g,%g %g,%g %g,%g %g,%g'/>\n",
+				color(i, j, zmin, zmax), ax, ay, bx, by, cx, cy, dx, dy)
+		}
+	}
+	fmt.Fprintln(w, "</svg>")
+}
 
 func SVG(w io.Writer) {
 	zmin, zmax := minmax()
@@ -44,7 +66,18 @@ func SVG(w io.Writer) {
 }
 
 func main() {
-	SVG(os.Stdout)
+	//SVG(os.Stdout)
+	file, err := os.Create("channels/surface/figure.svg")
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(file)
+	if err != nil {
+		panic(err)
+	}
+	SVG2(file)
 }
 
 // minmax returns the min and max values for z given the min/max values of x
