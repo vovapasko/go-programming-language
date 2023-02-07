@@ -5,30 +5,38 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 )
 
 const defaultHost = "localhost:8000"
 
 func main() {
-	host := defaultHost
-	if len(os.Args) > 1 {
-		host = os.Args[1]
+	hostsList := make([]string, 0)
+	if len(os.Args) == 1 {
+		hostsList = append(hostsList, defaultHost)
+	} else {
+		hostsList = os.Args[1:]
 	}
-	StartConnection(host)
+	RunOnHosts(hostsList)
 }
 
-func StartConnection(host string) {
-	conn, err := net.Dial("tcp", host)
-	defer func(conn net.Conn) {
-		err := conn.Close()
+func RunOnHosts(hosts []string) {
+	for _, host := range hosts {
+		conn, err := net.Dial("tcp", host)
+		defer func(conn net.Conn) {
+			err := conn.Close()
+			if err != nil {
+				log.Fatal("Could not close a connection")
+			}
+		}(conn)
 		if err != nil {
-			log.Fatal("Could not close a connection")
+			log.Fatal("Connection lost")
 		}
-	}(conn)
-	if err != nil {
-		log.Fatal("Connection lost")
+		go handleOutput(conn)
 	}
-	handleOutput(conn)
+	for {
+		time.Sleep(time.Second)
+	}
 }
 
 func handleOutput(conn net.Conn) {
