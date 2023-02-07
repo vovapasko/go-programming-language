@@ -19,7 +19,7 @@ func main() {
 		done <- struct{}{}
 	}()
 	mustCopy(conn, os.Stdin) // Write half of the connection
-	_ = conn.Close()
+	_ = conn.(*net.TCPConn).CloseWrite()
 	<-done
 }
 
