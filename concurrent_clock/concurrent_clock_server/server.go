@@ -60,7 +60,7 @@ func handleConnection(conn net.Conn, clientNum int, timezone string) {
 	}(conn)
 	for {
 		currentTime := getLocalTime(time.Now(), timezone)
-		_, err := fmt.Fprintf(conn, "[%s]: hello from client %v\n", currentTime, clientNum)
+		_, err := fmt.Fprintf(conn, "[%s]: %s %d\n", currentTime, timezone, clientNum)
 		if err != nil {
 			return
 		}
