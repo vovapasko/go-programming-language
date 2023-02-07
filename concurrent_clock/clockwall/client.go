@@ -7,8 +7,18 @@ import (
 	"os"
 )
 
+const defaultHost = "localhost:8000"
+
 func main() {
-	conn, err := net.Dial("tcp", "localhost:8000")
+	host := defaultHost
+	if len(os.Args) > 1 {
+		host = os.Args[1]
+	}
+	StartConnection(host)
+}
+
+func StartConnection(host string) {
+	conn, err := net.Dial("tcp", host)
 	defer func(conn net.Conn) {
 		err := conn.Close()
 		if err != nil {
