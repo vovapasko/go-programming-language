@@ -23,6 +23,10 @@ const (
 
 var sin30, cos30 = math.Sin(angle), math.Cos(angle) // sin(30°), cos(30°)
 
+type Coordinate struct {
+	X, Y float64
+}
+
 func SVG2(w io.Writer) {
 	zmin, zmax := minmax()
 	fmt.Fprintf(w, "<svg xmlns='http://www.w3.org/2000/svg' "+
@@ -30,15 +34,18 @@ func SVG2(w io.Writer) {
 		"width='%d' height='%d'>", width, height)
 	for i := 0; i < cells; i++ {
 		for j := 0; j < cells; j++ {
-			ax, ay := corner(i+1, j)
-			bx, by := corner(i, j)
-			cx, cy := corner(i, j+1)
-			dx, dy := corner(i+1, j+1)
-			if math.IsNaN(ax) || math.IsNaN(ay) || math.IsNaN(bx) || math.IsNaN(by) || math.IsNaN(cx) || math.IsNaN(cy) || math.IsNaN(dx) || math.IsNaN(dy) {
+			aCord := corner(i+1, j)
+			bCord := corner(i, j)
+			cCord := corner(i, j+1)
+			dCord := corner(i+1, j+1)
+			if math.IsNaN(aCord.X) || math.IsNaN(aCord.Y) ||
+				math.IsNaN(bCord.X) || math.IsNaN(bCord.Y) ||
+				math.IsNaN(cCord.X) || math.IsNaN(cCord.Y) ||
+				math.IsNaN(dCord.X) || math.IsNaN(dCord.Y) {
 				continue
 			}
 			fmt.Fprintf(w, "<polygon style='stroke: %s; fill: #222222' points='%g,%g %g,%g %g,%g %g,%g'/>\n",
-				color(i, j, zmin, zmax), ax, ay, bx, by, cx, cy, dx, dy)
+				color(i, j, zmin, zmax), aCord.X, aCord.Y, bCord.X, bCord.Y, cCord.X, cCord.Y, dCord.X, dCord.Y)
 		}
 	}
 	fmt.Fprintln(w, "</svg>")
@@ -51,15 +58,18 @@ func SVG(w io.Writer) {
 		"width='%d' height='%d'>", width, height)
 	for i := 0; i < cells; i++ {
 		for j := 0; j < cells; j++ {
-			ax, ay := corner(i+1, j)
-			bx, by := corner(i, j)
-			cx, cy := corner(i, j+1)
-			dx, dy := corner(i+1, j+1)
-			if math.IsNaN(ax) || math.IsNaN(ay) || math.IsNaN(bx) || math.IsNaN(by) || math.IsNaN(cx) || math.IsNaN(cy) || math.IsNaN(dx) || math.IsNaN(dy) {
+			aCord := corner(i+1, j)
+			bCord := corner(i, j)
+			cCord := corner(i, j+1)
+			dCord := corner(i+1, j+1)
+			if math.IsNaN(aCord.X) || math.IsNaN(aCord.Y) ||
+				math.IsNaN(bCord.X) || math.IsNaN(bCord.Y) ||
+				math.IsNaN(cCord.X) || math.IsNaN(cCord.Y) ||
+				math.IsNaN(dCord.X) || math.IsNaN(dCord.Y) {
 				continue
 			}
 			fmt.Fprintf(w, "<polygon style='stroke: %s; fill: #222222' points='%g,%g %g,%g %g,%g %g,%g'/>\n",
-				color(i, j, zmin, zmax), ax, ay, bx, by, cx, cy, dx, dy)
+				color(i, j, zmin, zmax), aCord.X, aCord.Y, bCord.X, bCord.Y, cCord.X, cCord.Y, dCord.X, dCord.Y)
 		}
 	}
 	fmt.Fprintln(w, "</svg>")
@@ -139,7 +149,7 @@ func color(i, j int, zmin, zmax float64) string {
 	return color
 }
 
-func corner(i, j int) (float64, float64) {
+func corner(i, j int) Coordinate {
 	// Find point (x,y) at corner of cell (i,j).
 	x := xyrange * (float64(i)/cells - 0.5)
 	y := xyrange * (float64(j)/cells - 0.5)
@@ -150,7 +160,7 @@ func corner(i, j int) (float64, float64) {
 	// Project (x,y,z) isometrically onto 2-D SVG canvas (sx,sy).
 	sx := width/2 + (x-y)*cos30*xyscale
 	sy := height/2 + (x+y)*sin30*xyscale - z*zscale
-	return sx, sy
+	return Coordinate{X: sx, Y: sy}
 }
 
 func f(x, y float64) float64 {
