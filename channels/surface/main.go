@@ -44,11 +44,18 @@ func SVG2(w io.Writer) {
 				math.IsNaN(dCord.X) || math.IsNaN(dCord.Y) {
 				continue
 			}
-			fmt.Fprintf(w, "<polygon style='stroke: %s; fill: #222222' points='%g,%g %g,%g %g,%g %g,%g'/>\n",
-				color(i, j, zmin, zmax), aCord.X, aCord.Y, bCord.X, bCord.Y, cCord.X, cCord.Y, dCord.X, dCord.Y)
+			printCoordinate(w, i, j, zmin, zmax, aCord, bCord, cCord, dCord)
 		}
 	}
 	fmt.Fprintln(w, "</svg>")
+}
+
+func printCoordinate(w io.Writer, i int, j int, zmin float64, zmax float64, aCord Coordinate, bCord Coordinate, cCord Coordinate, dCord Coordinate) {
+	_, err := fmt.Fprintf(w, "<polygon style='stroke: %s; fill: #222222' points='%g,%g %g,%g %g,%g %g,%g'/>\n",
+		color(i, j, zmin, zmax), aCord.X, aCord.Y, bCord.X, bCord.Y, cCord.X, cCord.Y, dCord.X, dCord.Y)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func SVG(w io.Writer) {
