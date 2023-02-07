@@ -10,20 +10,19 @@ func main() {
 	numbers := make(chan int)
 	squares := make(chan int)
 	go func() {
-		for x := 0; ; x++ {
+		for x := 0; x < 50; x++ {
 			numbers <- x
 		}
-
+		close(numbers)
 	}()
 	go func() {
-		for {
-			x := <-numbers
-			squares <- x * x
+		for number := range numbers {
+			squares <- number * number
 		}
+		close(squares)
 	}()
-	for {
-		fmt.Println(<-squares)
-		time.Sleep(100 * time.Millisecond)
+	for square := range squares {
+		fmt.Println(square)
+		time.Sleep(10 * time.Millisecond)
 	}
-
 }
