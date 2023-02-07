@@ -8,7 +8,8 @@ import (
 )
 
 func main() {
-	conn, err := net.Dial("tcp", "localhost:8000")
+	addr, err := net.ResolveTCPAddr("tcp", "localhost:8000")
+	conn, err := net.DialTCP("tcp", nil, addr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -19,7 +20,7 @@ func main() {
 		done <- struct{}{}
 	}()
 	mustCopy(conn, os.Stdin) // Write half of the connection
-	_ = conn.(*net.TCPConn).CloseWrite()
+	_ = conn.CloseWrite()
 	<-done
 }
 
